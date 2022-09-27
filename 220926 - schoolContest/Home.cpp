@@ -9,6 +9,8 @@ struct DisjointSet {
 
     DisjointSet(int n = 0) {par.assign(n + 1, -1);}
 
+    void Init(int n) {par.assign(n + 1, -1);}
+
     int findRoot(int x) {return (par[x] > 0) ? (par[x] = findRoot(par[x])) : (x);}
 
     bool Connected(int x, int y) {return (findRoot(x) == findRoot(y));}
@@ -45,15 +47,15 @@ void Input() {
 }
 
 bool Ok(int anchor) {
-    dsu = DisjointSet(n);
+    dsu = DisjointSet(n); dsu.Init(n);
 
-    for (Edge x : adj) if (x.c <= anchor) dsu.Union(x.u, x.v); else break;
+    for (int i = 0; i <= anchor; i++) dsu.Union(adj[i].u, adj[i].v);
 
     if (dsu.Connected(1, n)) return false;
 
-    for (Edge x : adj) if (x.c > anchor) if (dsu.Connected(1, x.u) && dsu.Connected(x.v, n)) return true;
+    for (int i = anchor + 1; i < adj.size(); i++) if (dsu.Connected(1, adj[i].u) && dsu.Connected(adj[i].v, n)) return true;
 
-    for (Edge x : adj) if (x.c > anchor) if (dsu.Connected(1, x.v) && dsu.Connected(x.u, n)) return true;
+    for (int i = anchor + 1; i < adj.size(); i++) if (dsu.Connected(1, adj[i].v) && dsu.Connected(adj[i].u, n)) return true;
 
     return false;
 }
@@ -61,13 +63,13 @@ bool Ok(int anchor) {
 void Process() {
     sort(adj.begin(), adj.end());
 
-    int l = 0, r = INF, result = -1;
+    int l = 0, r = adj.size() - 1, result = -1;
 
     while (l <= r) {
         int mid = (l + r) >> 1;
 
-        if (Ok(mid)) result = mid, r = mid - 1;
-        else l = mid + 1;
+        if (Ok(mid)) result = adj[mid].c, l = mid + 1;
+        else r = mid - 1;
     }
 
     cout << result << '\n';
